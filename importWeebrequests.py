@@ -58,7 +58,7 @@ def main():
         '5': 60         # Every minute
     }
     frecuencia = input(
-        "Elige la frecuencia: '1' para cada hora, '2' para cada 30 minutos, etc.: ")
+        "Choose the frequency: '1' for every hour, '2' for every 30 minutes, etc.: ")
     errores_contados = 0
 
     while True:
