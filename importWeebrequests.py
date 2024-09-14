@@ -9,7 +9,7 @@ def obtener_url(url):
         response = requests.get(url)
         soup = BeautifulSoup(response.text, 'html.parser')
         titulo_pagina = soup.find('title').text if soup.find(
-            'title') else "Sin título"
+            'title') else "Untitled"
 
         boton = soup.find('a', class_='wsite-button')
         if boton:
@@ -18,15 +18,15 @@ def obtener_url(url):
         error_header = soup.find('h2', class_='header')
         error_message = soup.find('p', class_='error')
         if error_header and error_message:
-            print(f"Error encontrado en '{
-                  url} - {titulo_pagina}': {error_header.text} - {error_message.text}")
+            print(f"2. Error found in '{url}'\nContent: {
+                  error_header.text} - {error_message.text}\n")
             return None
 
-        print(f"No se encontró el botón en la página '{
-              url} - {titulo_pagina}'. Verifica la página y el selector.")
+        print(f"1. Button not found on page '{url}'\nTitle of the page: <{
+              titulo_pagina}>\nNota: Verify the page and the selector.\n")
         return None
     except requests.RequestException as e:
-        print(f"Error al acceder a {url}: {e}")
+        print(f"Error accessing {url}: {e}")
         return None
 
 
@@ -42,7 +42,7 @@ def guardar_url_nueva(url):
 
 
 def main():
-    print("Introduce las URLs y escribe 'run' para comenzar el escaneo:")
+    print("Enter URLs and type 'run' to start scanning:")
     urls = []
     while True:
         entrada = input()
@@ -51,11 +51,11 @@ def main():
         urls.append(entrada)
 
     intervalos = {
-        '1': 60 * 60,   # Cada hora
-        '2': 30 * 60,   # Cada 30 minutos
-        '3': 10 * 60,   # Cada 10 minutos
-        '4': 5 * 60,    # Cada 5 minutos
-        '5': 60         # Cada minuto
+        '1': 60 * 60,   # Hourly
+        '2': 30 * 60,   # Every 30 minutes
+        '3': 10 * 60,   # Every 10 minutes
+        '4': 5 * 60,    # Every 5 minutes
+        '5': 60         # Every minute
     }
     frecuencia = input(
         "Elige la frecuencia: '1' para cada hora, '2' para cada 30 minutos, etc.: ")
@@ -69,13 +69,13 @@ def main():
             else:
                 errores_contados += 1
 
-            time.sleep(5)  # Puedes ajustar esto para espaciar las solicitudes
+            time.sleep(5)  # You can adjust this to space out the requests
 
         if errores_contados == len(urls):
-            print("Todos los sitios han sido escaneados con errores o sin encontrar el botón. Finalizando el proceso.")
-            break  # Salir del bucle y finalizar si todos resultaron en error
+            print("All sites have been scanned, contain errors, or the button could not be located.\n... Finalizing the process ...\n")
+            break
 
-        time.sleep(intervalos[frecuencia])  # Usa el intervalo seleccionado
+        time.sleep(intervalos[frecuencia])  # Uses the selected interval
 
 
 if __name__ == '__main__':
