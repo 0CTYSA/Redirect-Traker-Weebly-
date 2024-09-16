@@ -42,17 +42,25 @@ def obtener_url(url):
         return None
 
 
-def guardar_url_nueva(urls):
-    try:
-        with open('urls.txt', 'r+') as file:
-            urls_existentes = file.read().splitlines()
-            for url in urls:
-                if url not in urls_existentes:
-                    file.write(url + '\n')
-    except FileNotFoundError:
-        with open('urls.txt', 'w') as file:
-            for url in urls:
-                file.write(url + '\n')
+def guardar_url_nueva(base_url, urls):
+    if urls:  # Only proceed if there are URLs to save
+        try:
+            with open('urls.txt', 'r+') as file:
+                urls_existentes = file.read().splitlines()
+                # Move to the end of the file before writing new content
+                file.seek(0, 2)
+                if not any(base_url in line for line in urls_existentes):
+                    file.write(f"URL base: {base_url}\n")
+                for url in urls:
+                    if url not in urls_existentes:
+                        file.write(f"{url}\n")
+                file.write("\n")
+        except FileNotFoundError:
+            with open('urls.txt', 'w') as file:
+                file.write(f"URL base: {base_url}\n")
+                for url in urls:
+                    file.write(f"{url}\n")
+                file.write("\n")
 
 
 def main():
@@ -79,7 +87,8 @@ def main():
         for url in urls:
             result_urls = obtener_url(url)
             if result_urls:
-                guardar_url_nueva(result_urls)
+                guardar_url_nueva(url, result_urls)
+                print(f"Results for {url} have been saved.")
             else:
                 errores_contados += 1
 
