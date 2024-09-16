@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+from urllib.parse import urlparse, urljoin
 import time
 import sys
 
@@ -11,9 +12,20 @@ def obtener_url(url):
         titulo_pagina = soup.find('title').text if soup.find(
             'title') else "Untitled"
 
-        boton = soup.find('a', class_='wsite-button')
-        if boton:
-            return boton['href']
+        enlaces = soup.find_all('a', href=True)
+        urls_externas = []
+
+        for enlace in enlaces:
+            href = enlace['href']
+            # Convertir enlaces relativos a absolutos
+            if not urlparse(href).netloc:
+                href = urljoin(url, href)
+            # Comprobar si el enlace es externo y no es parte de la marca de agua
+            if (urlparse(href).netloc and urlparse(href).netloc != urlparse(url).netloc) and "weebly.com/signup" not in href:
+                urls_externas.append(href)
+
+        if urls_externas:
+            return urls_externas
 
         error_header = soup.find('h2', class_='header')
         error_message = soup.find('p', class_='error')
@@ -23,22 +35,24 @@ def obtener_url(url):
             return None
 
         print(f"1. Button not found on page '{url}'\nTitle of the page: <{
-              titulo_pagina}>\nNota: Verify the page and the selector.\n")
+              titulo_pagina}>\nNote: Verify the page and the selector.\n")
         return None
     except requests.RequestException as e:
         print(f"Error accessing {url}: {e}")
         return None
 
 
-def guardar_url_nueva(url):
+def guardar_url_nueva(urls):
     try:
         with open('urls.txt', 'r+') as file:
             urls_existentes = file.read().splitlines()
-            if url not in urls_existentes:
-                file.write(url + '\n')
+            for url in urls:
+                if url not in urls_existentes:
+                    file.write(url + '\n')
     except FileNotFoundError:
         with open('urls.txt', 'w') as file:
-            file.write(url + '\n')
+            for url in urls:
+                file.write(url + '\n')
 
 
 def main():
@@ -63,9 +77,9 @@ def main():
 
     while True:
         for url in urls:
-            result_url = obtener_url(url)
-            if result_url:
-                guardar_url_nueva(result_url)
+            result_urls = obtener_url(url)
+            if result_urls:
+                guardar_url_nueva(result_urls)
             else:
                 errores_contados += 1
 
