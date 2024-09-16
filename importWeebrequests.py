@@ -33,7 +33,7 @@ def obtener_url(url):
                   error_header.text} - {error_message.text}\n")
             return None
 
-        print(f"1. Button not found on page '{url}'\nTitle of the page: <{
+        print(f"1. URL's not found on page '{url}'\nTitle of the page: <{
               titulo_pagina}>\nNote: Verify the page and the selector.\n")
         return None
     except requests.RequestException as e:
